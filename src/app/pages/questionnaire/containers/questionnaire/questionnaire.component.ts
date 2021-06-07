@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { timer } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { Subject, timer } from 'rxjs';
+import { take, takeUntil, tap } from 'rxjs/operators';
 import { Question } from 'src/app/shared/models/question.interface';
 import { QuestionService } from 'src/app/shared/services/question.service';
 
@@ -10,7 +10,9 @@ import { QuestionService } from 'src/app/shared/services/question.service';
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.scss']
 })
-export class QuestionnaireComponent implements OnInit {
+export class QuestionnaireComponent implements OnInit, OnDestroy {
+  destroy$: Subject<void> = new Subject<void>();
+
   id = 1;
   answeredQuestions: Question[] = [];
   question: Question = {} as Question;
@@ -20,20 +22,10 @@ export class QuestionnaireComponent implements OnInit {
 
   constructor(
     private questionService: QuestionService,
-    private route: Router) {
-      timer(0, 1000).pipe(
-        take(this.counter),
-        tap(() => this.countDown(--this.counter))
-      ).subscribe();
-    }
-
-  countDown(remaining: number): void {
-    if (remaining === 0) {
-      this.route.navigateByUrl('/result', { state: { timeExpired: true } });
-    }
-  }
+    private route: Router) { }
 
   ngOnInit(): void {
+    this.setTimer();
     this.getQuestionsTotalCount();
     this.getQuestionById(this.id);
   }
@@ -100,5 +92,24 @@ export class QuestionnaireComponent implements OnInit {
         this.question.selected = exists.selected;
       }
     }
+  }
+
+  setTimer(): void {
+    timer(0, 1000).pipe(
+      take(this.counter),
+      takeUntil(this.destroy$),
+      tap(() => this.countDown(--this.counter))
+    ).subscribe();
+  }
+
+  countDown(remaining: number): void {
+    if (remaining === 0) {
+      this.route.navigateByUrl('/result', { state: { timeExpired: true } });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
