@@ -1,0 +1,19 @@
+<div class="card">
+  <div class="card-body">
+    <div class="text-center">
+      <div *ngIf="timeExpired; else showResults">
+        <h4>Testing Time Expired</h4>
+      </div>
+      <ng-template #showResults>
+        <div *ngIf="!timeExpired && result; else showEmptyMessage">
+          <h4>You are an <span class="text-success wf-bold">{{ result }}</span></h4>
+        </div>
+        <ng-template #showEmptyMessage>
+          <h4>There is no results yet!</h4>
+        </ng-template>
+      </ng-template>
+      <button type="button" class="btn btn-primary" [routerLink]="'/questionnaire'">Repeat personality test</button>
+    </div>
+  </div>
+</div>
+

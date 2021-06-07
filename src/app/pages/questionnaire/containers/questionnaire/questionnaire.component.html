@@ -1,0 +1,25 @@
+<ng-template #questionContainer>
+  <p class="text-end">Timer: {{ counter }}</p>
+  <app-questionnaire-question
+    [question]="question"
+    [totalCount]="totalCount"
+    [isFirst]="isFirst()"
+    [isLast]="isLast()"
+    [isAnswered]="isAnswered()"
+    [progress]="answeredQuestions.length / totalCount * 100"
+    (next)="next()"
+    (prev)="prev()">
+    <button class="btn btn-primary m-2" [routerLink]="'dashboard'">Exit!</button>
+  </app-questionnaire-question>
+</ng-template>
+<div class="card" *ngIf="timeExpired; else questionContainer">
+  <div class="card-body">
+    <div class="text-center">
+      <div>
+        <h4>Testing Time Expired</h4>
+      </div>
+      <button type="button" class="btn btn-primary" [routerLink]="'/questionnaire'">Repeat personality test</button>
+    </div>
+  </div>
+</div>
+
